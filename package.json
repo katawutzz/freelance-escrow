@@ -1,0 +1,24 @@
+{
+  "name": "freelance-escrow",
+  "version": "1.0.0",
+  "description": "Freelance Escrow & Smart Payment Platform",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "web": "hardhat run scripts/export.js && node scripts/serve.js",
+    "deploy:hoodi": "hardhat run scripts/deploy.js --network hoodi",
+    "export": "hardhat run scripts/export.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.29.2"
+  }
+}

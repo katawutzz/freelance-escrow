@@ -1,0 +1,16 @@
+{
+  "31337": {
+    "address": "0xC6bA8C3233eCF65B761049ef63466945c362EdD2",
+    "deployBlock": 14,
+    "txHash": "0x8667b627cb7be49e89b4cd2bc6b5918dcd80e8644a7f97dbd836baab5acae52a",
+    "network": "Hardhat Local",
+    "savedAt": "2026-11-16T12:04:10.748Z"
+  },
+  "560048": {
+    "address": "0x320C00e416D180ef22b35901627E4a28b51afAFb",
+    "deployBlock": 4027203,
+    "txHash": "0x3928095a779f74f83e138a1a3dc71950ca72fde574e5c78bd16feec400753df2",
+    "network": "Hoodi Testnet",
+    "savedAt": "2026-11-16T12:04:42.952Z"
+  }
+}

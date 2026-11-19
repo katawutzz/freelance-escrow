@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DigitalWork Escrow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2 3 6v6c0 5 3.8 9.3 9 10 5.2-.7 9-5 9-10V6l-9-4Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">DigitalWork Escrow</div>
+        <div class="brand-sub">ระบบจ้างงานฟรีแลนซ์และชำระเงินตามผลงาน</div>
+      </div>
+    </div>
+    <div class="wallet" id="wallet">
+      <select id="networkSelect" title="เลือกเครือข่าย"></select>
+      <select id="accountSelect" class="hidden" title="เลือกบัญชีทดสอบ (Hardhat)"></select>
+      <button id="connectMetaMask" class="btn primary">เชื่อมต่อ MetaMask</button>
+      <button id="connectLocal" class="btn ghost">ใช้บัญชีทดสอบ (Hardhat)</button>
+      <div id="walletInfo" class="wallet-info hidden"></div>
+      <button id="switchAccountBtn" class="btn sm hidden" title="เลือกบัญชีอื่นใน MetaMask">เปลี่ยนบัญชี</button>
+      <button id="faucetBtn" class="btn ghost sm hidden" title="เติม ETH ปลอมให้บัญชีนี้ (เฉพาะเครือข่ายทดสอบ Hardhat)">รับ 100 ETH ทดสอบ</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="configWarning" class="banner warn hidden"></div>
+    <div id="deployPanel" class="banner info hidden">
+      <div>
+        <b>ยังไม่มีสัญญา FreelanceEscrow บนเครือข่าย <span id="deployNetName"></span></b>
+        <div class="sub">กด Deploy แล้วยืนยันใน MetaMask — กระเป๋าที่ deploy จะเป็นเจ้าของระบบและผู้ดูแลข้อพิพาท (ค่า gas จ่ายด้วย ETH ทดสอบ)</div>
+      </div>
+      <div class="action-row">
+        <button id="deployBtn" class="btn primary">Deploy สัญญาด้วย MetaMask</button>
+      </div>
+    </div>
+
+    <section class="stats" id="stats">
+      <div class="stat"><div class="stat-label">งานทั้งหมด</div><div class="stat-value" id="statJobs">–</div></div>
+      <div class="stat"><div class="stat-label">ETH ที่ล็อกใน Escrow</div><div class="stat-value" id="statEscrow">–</div></div>
+      <div class="stat"><div class="stat-label">บทบาทของคุณ</div><div class="stat-value small" id="statRole">ยังไม่เชื่อมต่อ</div></div>
+      <div class="stat"><div class="stat-label">สัญญา</div><div class="stat-value small mono" id="statContract">–</div></div>
+    </section>
+
+    <div class="layout">
+      <aside class="col-left">
+        <section class="card">
+          <h2>สร้างข้อตกลงการจ้างงาน</h2>
+          <form id="createForm" class="form">
+            <label>ชื่อโครงการ<input name="title" required maxlength="120" placeholder="เช่น พัฒนาเว็บไซต์ร้านกาแฟ" /></label>
+            <label>รายละเอียดงาน<textarea name="description" rows="3" placeholder="ขอบเขตงาน สิ่งที่ต้องส่งมอบ"></textarea></label>
+            <div class="row2">
+              <label>ค่าจ้าง (ETH)<input name="amount" required type="number" min="0" step="any" placeholder="0.5" /></label>
+              <label>กำหนดส่ง<input name="deadline" required type="datetime-local" /></label>
+            </div>
+            <label>Wallet Address ของฟรีแลนซ์<input name="freelancer" required class="mono" placeholder="0x..." /></label>
+            <label class="check"><input type="checkbox" name="depositNow" checked /> ฝากเงินเข้า Escrow ทันทีหลังสร้าง</label>
+            <button class="btn primary block" type="submit">สร้างข้อตกลง</button>
+          </form>
+        </section>
+
+        <section class="card hidden" id="adminCard">
+          <h2>ผู้ดูแลระบบ</h2>
+          <form id="arbiterForm" class="form">
+            <label>เพิ่ม/ถอนสิทธิ์ผู้ดูแลข้อพิพาท<input name="addr" required class="mono" placeholder="0x..." /></label>
+            <div class="row2">
+              <button class="btn" type="submit" data-enable="true">ให้สิทธิ์</button>
+              <button class="btn danger-ghost" type="submit" data-enable="false">ถอนสิทธิ์</button>
+            </div>
+          </form>
+        </section>
+      </aside>
+
+      <section class="col-main">
+        <div class="card">
+          <div class="card-head">
+            <h2>รายการงาน</h2>
+            <div class="tabs" id="tabs" role="tablist">
+              <button class="tab active" data-tab="all">ทั้งหมด</button>
+              <button class="tab" data-tab="client">ฉันเป็นผู้ว่าจ้าง</button>
+              <button class="tab" data-tab="freelancer">ฉันเป็นฟรีแลนซ์</button>
+              <button class="tab" data-tab="disputed">ข้อพิพาท</button>
+            </div>
+          </div>
+          <div id="jobList" class="job-list"><div class="empty">กำลังโหลด…</div></div>
+        </div>
+
+        <div class="card" id="detailCard">
+          <div id="jobDetail"><div class="empty">เลือกงานจากรายการเพื่อดูรายละเอียด สถานะ และประวัติธุรกรรม</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>ประวัติธุรกรรมล่าสุด</h2>
+            <button class="btn ghost sm" id="refreshBtn">รีเฟรช</button>
+          </div>
+          <div class="table-wrap">
+            <table class="tx-table">
+              <thead><tr><th>เวลา</th><th>งาน</th><th>เหตุการณ์</th><th>จำนวน</th><th>Transaction Hash</th></tr></thead>
+              <tbody id="activityBody"><tr><td colspan="5" class="empty">–</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-title">สมาชิกกลุ่ม</div>
+        <div class="sub">โจทย์ที่ 1 · ระบบจ้างงานฟรีแลนซ์และชำระเงินตามผลงาน (Freelance Escrow &amp; Smart Payment Platform)</div>
+      </div>
+      <ol class="members">
+        <li><span class="mono">66002022</span> คฑาวุธ เมืองพรหม</li>
+        <li><span class="mono">66031036</span> ธนภัทร หนูบุญมี</li>
+        <li><span class="mono">66016519</span> พบพร จิตโสภา</li>
+        <li><span class="mono">66050731</span> อชิรยุ นวลสกลุวัฒน์</li>
+        <li><span class="mono">66050180</span> นพรัตน์ สวัสดิ์เอื้อ</li>
+      </ol>
+    </div>
+  </footer>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  <script src="contract.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
